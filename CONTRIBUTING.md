@@ -1,68 +1,109 @@
-# Releasing a New Version
+# Contributing
 
-When it comes time to cut a new release, follow these steps:
+All contributions are welcome! Besides code contributions, this includes things like documentation improvements, bug reports, and feature requests.
 
-1. Create a new git branch off of `main` for the release.
+You should first check if there is a [GitHub issue](https://github.com/joshuadavidthomas/llm-uv-tool/issues) already open or related to what you would like to contribute. If there is, please comment on that issue to let others know you are working on it. If there is not, please open a new issue to discuss your contribution.
 
-   Prefer the convention `release-<version>`, where `<version>` is the next incremental version number (e.g. `release-v0.1.0` for version 0.1.0).
+Not all contributions need to start with an issue, such as typo fixes in documentation or version bumps to Python or Django that require no internal code changes, but generally, it is a good idea to open an issue first.
 
-   ```shell
-   git checkout -b release-v<version>
+We adhere to Django's Code of Conduct in all interactions and expect all contributors to do the same. Please read the [Code of Conduct](https://www.djangoproject.com/conduct/) before contributing.
+
+## Requirements
+
+- [uv](https://github.com/astral-sh/uv) - Modern Python toolchain that handles:
+  - Python version management and installation
+  - Virtual environment creation and management
+  - Fast, reliable dependency resolution and installation
+  - Reproducible builds via lockfile
+- [direnv](https://github.com/direnv/direnv) (Optional) - Automatic environment variable loading
+- [just](https://github.com/casey/just) (Optional) - Command runner for development tasks
+
+### `Justfile`
+
+The repository includes a `Justfile` that provides all common development tasks with a consistent interface. Running `just` without arguments shows all available commands and their descriptions.
+
+<!-- [[[cog
+import subprocess
+import cog
+
+output_raw = subprocess.run(["just", "--list", "--list-submodules"], stdout=subprocess.PIPE)
+output_list = output_raw.stdout.decode("utf-8").split("\n")
+
+cog.outl("""\
+```bash
+$ just
+$ # just --list --list-submodules
+""")
+
+for i, line in enumerate(output_list):
+    if not line:
+        continue
+    cog.out(line)
+    if i < len(output_list):
+        cog.out("\n")
+
+cog.out("```")
+]]] -->
+<!-- [[[end]]] -->
+
+All commands below will contain the full command as well as its `just` counterpart.
+
+## Setup
+
+The following instructions will use `uv` and assume a Unix-like operating system (Linux or macOS).
+
+Windows users will need to adjust commands accordingly, though the core workflow remains the same.
+
+Alternatively, any Python package manager that supports installing from `pyproject.toml` ([PEP 621](https://peps.python.org/pep-0621/)) can be used. If not using `uv`, ensure you have Python installed from [python.org](https://www.python.org/) or another source such as [`pyenv`](https://github.com/pyenv/pyenv).
+
+1. Fork the repository and clone it locally.
+
+2. Use `uv` to bootstrap your development environment.
+
+   ```bash
+   uv python install
+   uv sync --locked
+   # just bootstrap
    ```
 
-   However, the branch name is not *super* important, as long as it is not `main`.
+   This will install the correct Python version, create and configure a virtual environment, and install all dependencies.
 
-2. Update the version number across the project using the `bumpver` tool.{% if versioning_scheme == "SemVer" %} See [this section](#choosing-the-next-version-number) for more details about choosing the correct version number.{% endif %}
+## Linting and Formatting
 
-   The `pyproject.toml` in the base of the repository contains a `[tool.bumpver]` section that configures the `bumpver` tool to update the version number wherever it needs to be updated and to create a commit with the appropriate commit message.
+This project enforces code quality standards using [`pre-commit`](https://github.com/pre-commit/pre-commit).
 
-   **Note**: For any of the following commands, you can add the command line flag `--dry` to preview the changes without actually making the changes.
+To run all formatters and linters:
 
-   A `just bump` command is provided in the project's [Justfile](https://github.com/joshuadavidthomas/llm-uv-tool/blob/main/CONTRIBUTING.md#just). Alternatively, you can swap each `just bump` below with `uv run --with bumpver bumpver` -- or install bumpver into your local environment and call it directly.
+```bash
+uv run --with pre-commit-uv pre-commit run --all-files
+# just lint
+```
 
-   Here are the most common commands you will need to run:
+The following checks are run:
 
-   ```shell
-   just bump update --patch  # for a patch release
-   just bump update --minor  # for a minor release
-   just bump update --major  # for a major release
-   ```
+- [ruff](https://github.com/astral-sh/ruff) - Fast Python linter and formatter
+- Code formatting for Python files in documentation ([blacken-docs](https://github.com/adamchainz/blacken-docs))
+- TOML and YAML validation
+- Basic file hygiene (trailing whitespace, file endings)
 
-   To release a tagged version, such as a beta or release candidate, you can run:
+To enable pre-commit hooks after cloning:
 
-   ```shell
-   just bump update --tag=beta
-   # or
-   just bump update --tag=rc
-   ```
+```bash
+uv run --with pre-commit-uv pre-commit install
+```
 
-   Running these commands on a tagged version will increment the tag appropriately, but will not increment the version number.
+Configuration for these tools can be found in:
 
-   To go from a tagged release to a full release, you can run:
+- [`.pre-commit-config.yaml`](.pre-commit-config.yaml) - Pre-commit hook configuration
+- [`pyproject.toml`](pyproject.toml) - Ruff and other tool settings
 
-   ```shell
-   just bump update --tag=final
-   ```
+## Continuous Integration
 
-3. Ensure the [CHANGELOG](https://github.com/joshuadavidthomas/llm-uv-tool/blob/main/CHANGELOG.md) is up to date. If updates are needed, add them now in the release branch.
+This project uses GitHub Actions for CI/CD. The workflows can be found in [`.github/workflows/`](.github/workflows/).
 
-4. Create a pull request from the release branch to `main`.
+- [`release.yml`](.github/workflows/release.yml) - Runs on GitHub release creation
+  - Runs the [`test.yml`](.github/workflows/test.yml) workflow
+  - Builds package
+  - Publishes to PyPI
 
-5. Once CI has passed and all the checks are green ✅, merge the pull request.
-
-6. Draft a [new release](https://github.com/joshuadavidthomas/llm-uv-tool/releases/new) on GitHub.
-
-   Use the version number with a leading `v` as the tag name (e.g. `v0.1.0`).
-
-   Allow GitHub to generate the release title and release notes, using the 'Generate release notes' button above the text box. If this is a final release coming from a tagged release (or multiple tagged releases), make sure to copy the release notes from the previous tagged release(s) to the new release notes (after the release notes already generated for this final release).
-
-   If this is a tagged release, make sure to check the 'Set as a pre-release' checkbox.
-
-7. Once you are satisfied with the release, publish the release. As part of the publication process, GitHub Actions will automatically publish the new version of the package to PyPI.
-
-## Choosing the Next Version Number
-
-We try our best to adhere to [Semantic Versioning](https://semver.org/), but we do not promise to follow it perfectly (and let's be honest, this is the case with a lot of projects using SemVer).
-
-In general, use your best judgement when choosing the next version number. If you are unsure, you can always ask for a second opinion from another contributor.
-
+PRs must pass all CI checks before being merged.
