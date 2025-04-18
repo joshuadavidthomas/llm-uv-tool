@@ -23,7 +23,7 @@ This plugin overrides two built-in LLM commands:
 - `llm install`
 - `llm uninstall`
 
-Once llm-uv-tool is installed as a plugin in your LLM environment, its commands will run instead of the built-in so your usage should stay the same as before.
+Once llm-uv-tool is installed as a plugin in your LLM environment, its commands will run instead of the built-in commands so your usage should stay the same as before.
 
 These modified commands are wrappers around `uv tool install` with appropriate flags instead of pip, maintaining a list of installed plugins to ensure they're properly managed within uv's environment.
 
@@ -39,14 +39,14 @@ To uninstall a plugin:
 llm uninstall llm-openrouter
 ```
 
-Both llm-uv-tool commands take the same arguments as the built-in LLM commands, which map to pip's `install` and `uninstall` commands
+Both llm-uv-tool commands take the same arguments as the built-in LLM commands, which map to pip's `install` and `uninstall` commands. llm-uv-tool either maps them to the appropriate `uv tool` CLI arguments or provides the same functionality internally.
 
 ```bash
 llm install --force-reinstall llm-gpt4all
 llm uninstall -y llm-gpt4all
 ```
 
-The plugin maintains a list of installed packages in a JSON file located in your LLM config directory (typically `~/.config/io.datasette.llm/uv-tool-packages.json`, though the location may vary depending on your OS). This file contains a simple JSON array with an entry for each installed plugin:
+The plugin maintains a list of installed packages in a `uv-tool-packages.json` JSON file located in your LLM config directory (typically `~/.config/io.datasette.llm/`, though the location may vary depending on your OS). This file contains a simple JSON array with an entry for each installed plugin:
 
 
 ```json
@@ -84,7 +84,7 @@ If you're already using LLM with other plugins and want to migrate to using llm-
    llm install llm-templates-github
    ```
 
-   After you run this command it should look something like this, with llm-templates-github at the end:
+   After you run this command the newly installed plugin should be at the end of the array. Using the above command with llm-templates-github as an example, it may look something like this:
 
    ```json
    [
