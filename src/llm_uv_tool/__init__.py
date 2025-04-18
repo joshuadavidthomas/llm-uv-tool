@@ -74,15 +74,11 @@ def register_commands(cli):
             | set(packages)
         )
         for package in packages:
-            if package == "llm-uv-tool":
-                continue
             args.extend(["--with", package])
 
         subprocess.run(args, check=True)
 
         for package in packages:
-            if package == "llm-uv-tool":
-                continue
             save_installed_uv_tool_package(package)
 
     @cli.command()
@@ -96,8 +92,6 @@ def register_commands(cli):
 
         args: list[str] = ["uv", "tool", "install", "--force", "llm"]
         for package in installed_packages - set(packages):
-            if package == "llm-uv-tool":
-                continue
             args.extend(["--with", package])
 
         subprocess.run(args, check=True)
