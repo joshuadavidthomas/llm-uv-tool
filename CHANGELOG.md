@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.1.2]
+
 ### Fixed
 
 - Added proper confirmation for `llm uninstall` command when `-y/--yes` flag is not provided. The underlying `uv tool` command used doesn't include this, so it needs to be provided by this tool.
@@ -41,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Josh Thomas <josh@joshthomas.dev> (maintainer)
 
-[unreleased]: https://github.com/joshuadavidthomas/llm-uv-tool/compare/v0.1.1...HEAD
+[unreleased]: https://github.com/joshuadavidthomas/llm-uv-tool/compare/v0.1.2...HEAD
 [0.1.0]: https://github.com/joshuadavidthomas/llm-uv-tool/releases/tag/v0.1.0
 [0.1.1]: https://github.com/joshuadavidthomas/llm-uv-tool/releases/tag/v0.1.1
+[0.1.2]: https://github.com/joshuadavidthomas/llm-uv-tool/releases/tag/v0.1.2
