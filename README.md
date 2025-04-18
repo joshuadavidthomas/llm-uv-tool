@@ -1,7 +1,7 @@
 # llm-uv-tool
 
-[![PyPI](https://img.shields.io/pypi/v/django-bird)](https://pypi.org/project/django-bird/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/django-bird)
+[![PyPI](https://img.shields.io/pypi/v/llm-uv-tool)](https://pypi.org/project/django-bird/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/llm-uv-tool)
 
 A plugin for [LLM](https://github.com/simonw/llm) that provides integration when installing LLM as a uv tool.
 
