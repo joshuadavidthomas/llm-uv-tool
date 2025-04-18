@@ -14,7 +14,7 @@ bootstrap:
     uv sync --frozen
 
 bump *ARGS:
-    uv run --with bumpver {{ ARGS }}
+    uv run --with bumpver bumpver {{ ARGS }}
 
 lint:
     uv run --with pre-commit-uv pre-commit run --all-files
