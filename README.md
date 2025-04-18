@@ -102,7 +102,7 @@ If you have already installed LLM plugins and want to migrate to using llm-uv-to
 ## Why use this?
 
 When LLM is installed as a standalone CLI tool using uv's tool feature (`uv tool install llm`), LLM's standard pip-based plugin installation mechanism conflicts with uv's isolated environments. This means actions like upgrading LLM (`uv tool upgrade llm`) removes all your installed plugins, forcing repeated reinstallation.
-  │
+
 llm-uv-tool solves this issue by:
 
 1. Tracking installed plugins persistently.
