@@ -13,7 +13,7 @@ A plugin for [LLM](https://github.com/simonw/llm) that provides integration when
 ## Installation
 
 ```bash
-uv install --with llm-uv-tool llm
+uv tool install --with llm-uv-tool llm
 ```
 
 ## Usage
