@@ -1,9 +1,9 @@
 # llm-uv-tool
 
-[![PyPI](https://img.shields.io/pypi/v/llm-uv-tool)](https://pypi.org/project/django-bird/)
+[![PyPI](https://img.shields.io/pypi/v/llm-uv-tool)](https://pypi.org/project/llm-uv-tool/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/llm-uv-tool)
 
-A plugin for [LLM](https://github.com/simonw/llm) that provides integration when installing LLM as a uv tool.
+A plugin for [LLM](https://github.com/simonw/llm) that enables proper plugin management when LLM is installed as a uv tool. It resolves compatibility issues between uv's isolated environment approach and LLM's plugin system.
 
 ## Requirements
 
@@ -12,42 +12,46 @@ A plugin for [LLM](https://github.com/simonw/llm) that provides integration when
 
 ## Installation
 
+Install LLM with this plugin:
+
 ```bash
 uv tool install --with llm-uv-tool llm
 ```
 
+If you already have LLM installed:
+
+```bash
+llm install llm-uv-tool
+```
+
+Once installed, use LLM's standard commands to manage plugins.
+
+If you've previously installed other LLM plugins before adding llm-uv-tool, refer to the [migration guide](#migrating-to-llm-uv-tool) below for steps to preserve them.
+
 ## Usage
 
-This plugin overrides two built-in LLM commands:
+This plugin provides uv-compatible versions of two built-in LLM commands:
 
 - `llm install`
 - `llm uninstall`
 
-Once llm-uv-tool is installed as a plugin in your LLM environment, its commands will run instead of the built-in commands so your usage should stay the same as before.
+Once installed, llm-uv-tool's commands replace the built-in versions while maintaining the same interface and arguments. Behind the scenes, they:
 
-These modified commands are wrappers around `uv tool install` with appropriate flags instead of pip, maintaining a list of installed plugins to ensure they're properly managed within uv's environment.
+1. Track installed plugins in a JSON file.
+2. Map appropriate arguments between LLM's commands and uv's tool system.
+3. Ensure plugins remain properly installed in uv's isolated environment.
 
-To install a plugin:
+Both commands accept the same arguments as LLM's built-in versions. These arguments are either:
 
-```bash
-llm install llm-ollama
-```
-
-To uninstall a plugin:
-
-```bash
-llm uninstall llm-openrouter
-```
-
-Both llm-uv-tool commands take the same arguments as the built-in LLM commands, which map to pip's `install` and `uninstall` commands. llm-uv-tool either maps them to the appropriate `uv tool` CLI arguments or provides the same functionality internally.
+- Mapped to equivalent `uv tool` CLI arguments.
+- Handled internally to provide the same functionality.
 
 ```bash
 llm install --force-reinstall llm-gpt4all
 llm uninstall -y llm-gpt4all
 ```
 
-The plugin maintains a list of installed packages in a `uv-tool-packages.json` JSON file located in your LLM config directory (typically `~/.config/io.datasette.llm/`, though the location may vary depending on your OS). This file contains a simple JSON array with an entry for each installed plugin:
-
+The plugin maintains a list of installed plugins in a `uv-tool-packages.json` file located in your LLM config directory (typically `~/.config/io.datasette.llm/`, though the location may vary depending on your OS). This file contains a simple JSON array with an entry for each installed plugin:
 
 ```json
 [
@@ -62,7 +66,7 @@ When you install or uninstall plugins, this file is automatically updated to tra
 
 ### Migrating to llm-uv-tool
 
-If you're already using LLM with other plugins and want to migrate to using llm-uv-tool, follow these steps:
+If you have already installed LLM plugins and want to migrate to using llm-uv-tool, follow these steps:
 
 1. Install llm-uv-tool in your current LLM environment:
 
@@ -72,19 +76,19 @@ If you're already using LLM with other plugins and want to migrate to using llm-
 
 2. Copy all installed plugins to `uv-tool-packages.json` in your LLM config directory.
 
-   For a small number of plugins, you may want to just create this file by hand. If you would rather use jq to automate the process, this command should do the trick:
+   If you have a small number of plugins, you may prefer to create this file by hand. Alternatively, you can use jq to automate the process with the following command:
 
    ```bash
    llm plugins | jq "[.[].name]" > "$XDG_CONFIG_HOME/io.datasette.llm/uv-tool-packages.json"
    ```
 
-3. To verify everything is working, you can add an additional plugin and check the contents of `uv-tool-packages.json`.
+3. To verify everything is working, add an additional plugin and check the contents of `uv-tool-packages.json`.
 
    ```bash
    llm install llm-templates-github
    ```
 
-   After you run this command the newly installed plugin should be at the end of the array. Using the above command with llm-templates-github as an example, it may look something like this:
+   After running this command, the newly installed plugin should appear at the end of the array. Using the above command with llm-templates-github as an example, it might look something like this:
 
    ```json
    [
@@ -97,16 +101,15 @@ If you're already using LLM with other plugins and want to migrate to using llm-
 
 ## Why use this?
 
-When you install LLM as a standalone CLI tool using uv's tool feature (`uv tool install llm`), the standard plugin installation mechanism (which uses pip) doesn't play well with uv's isolated environment approach.
+When LLM is installed as a standalone CLI tool using uv's tool feature (`uv tool install llm`), LLM's standard pip-based plugin installation mechanism conflicts with uv's isolated environments. This means actions like upgrading LLM (`uv tool upgrade llm`) removes all your installed plugins, forcing repeated reinstallation.
+  │
+llm-uv-tool solves this issue by:
 
-This plugin attempts to solve that problem by:
+1. Tracking installed plugins persistently.
+2. Intercepting `llm install` and `llm uninstall` commands to correctly manage plugins within the uv tool context.
+3. Ensuring a consistent and familiar experience that mirrors the built-in LLM commands.
 
-1. Tracking which plugins you've installed
-2. Ensuring those plugins are preserved when installing/uninstalling
-3. Providing a consistent installation experience that works with uv's tool system
-4. Maintaining the same API and user experience as the built-in LLM install/uninstall commands
-
-Using this plugin helps ensure your LLM plugins remain properly installed when using uv's tool system.
+By handling the underlying uv interactions, this plugin ensures your chosen LLM plugins remain installed and functional across upgrades and other tool management operations.
 
 ## License
 
