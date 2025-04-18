@@ -90,6 +90,12 @@ def register_commands(cli):
             p["name"] for p in get_plugins()
         )
 
+        if not yes:
+            package_list = ", ".join(packages)
+            if not click.confirm(f"Uninstall {package_list}?"):
+                click.echo("Aborted!")
+                return
+
         args: list[str] = ["uv", "tool", "install", "--force", "llm"]
         for package in installed_packages - set(packages):
             args.extend(["--with", package])
