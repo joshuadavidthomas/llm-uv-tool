@@ -17,6 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Improved documentation in README.md with clearer installation instructions, usage examples, and explanations.
+
+### Fixed
+
+- Fixed incorrect PyPI link in README.md.
+
 ## [0.1.2]
 
 ### Fixed
