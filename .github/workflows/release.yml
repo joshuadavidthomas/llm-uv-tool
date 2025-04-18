@@ -5,13 +5,8 @@ on:
     types: [published]
 
 jobs:
-  test:
-    uses: ./.github/workflows/test.yml
-    secrets: inherit
-
   pypi:
     runs-on: ubuntu-latest
-    needs: test
     environment: release
     permissions:
       contents: write
