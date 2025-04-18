@@ -36,6 +36,17 @@ Documentation = "https://github.com/joshuadavidthomas/llm-uv-tool#readme"
 Issues = "https://github.com/joshuadavidthomas/llm-uv-tool/issues"
 Source = "https://github.com/joshuadavidthomas/llm-uv-tool"
 
+[tool.bumpver]
+commit = true
+commit_message = ":bookmark: bump version {old_version} -> {new_version}"
+current_version = "0.17.3"
+push = false  # set to false for CI
+tag = false
+version_pattern = "MAJOR.MINOR.PATCH[PYTAGNUM]"
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['version = "{version}"']
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
