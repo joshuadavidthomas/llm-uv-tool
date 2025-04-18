@@ -1,5 +1,8 @@
 # llm-uv-tool
 
+[![PyPI](https://img.shields.io/pypi/v/django-bird)](https://pypi.org/project/django-bird/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/django-bird)
+
 A plugin for [LLM](https://github.com/simonw/llm) that provides integration when installing LLM as a uv tool.
 
 ## Requirements
@@ -20,7 +23,7 @@ This plugin overrides two built-in LLM commands:
 - `llm install`
 - `llm uninstall`
 
-These modified commands use uv tool install with appropriate flags instead of pip, maintaining a list of installed plugins to ensure they're properly managed within uv's environment.
+These modified commands use `uv tool install` with appropriate flags instead of pip, maintaining a list of installed plugins to ensure they're properly managed within uv's environment.
 
 ## Why use this?
 
@@ -34,3 +37,7 @@ This plugin attempts to solve that problem by:
 4. Maintaining the same API and user experience as the built-in LLM install/uninstall commands
 
 Using this plugin helps ensure your LLM plugins remain properly installed when using uv's tool system.
+
+## License
+
+llm-uv-tool is licensed under the MIT license. See the [`LICENSE`](LICENSE) file for more information.
