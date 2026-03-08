@@ -88,7 +88,7 @@ If you have already installed LLM plugins and want to migrate to using llm-uv-to
    In addition, `llm` can save its settings to a custom location indicated by the `$LLM_USER_PATH`
    environment variable, so adapt the above `$XDG_CONFIG_HOME` to match your setup.
   
-4. To verify everything is working, add an additional plugin and check the contents of `uv-tool-packages.json`.
+3. To verify everything is working, add an additional plugin and check the contents of `uv-tool-packages.json`.
 
    ```bash
    llm install llm-templates-github
