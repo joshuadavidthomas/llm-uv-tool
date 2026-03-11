@@ -82,6 +82,12 @@ If you have already installed LLM plugins and want to migrate to using llm-uv-to
    llm plugins | jq "[.[].name]" > "$XDG_CONFIG_HOME/io.datasette.llm/uv-tool-packages.json"
    ```
 
+   On macOS `llm` [stores its settings](https://llm.datasette.io/en/stable/setup.html#setting-a-custom-directory-location)
+   in `~/Library/Application Support/io.datasette.llm/`;
+   on Linux it may be `~/.config/io.datasette.llm/`.  
+   In addition, `llm` can save its settings to a custom location indicated by the `$LLM_USER_PATH`
+   environment variable, so adapt the above `$XDG_CONFIG_HOME` to match your setup.
+  
 3. To verify everything is working, add an additional plugin and check the contents of `uv-tool-packages.json`.
 
    ```bash
