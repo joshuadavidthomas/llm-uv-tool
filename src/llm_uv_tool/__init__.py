@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from importlib.metadata import version
 
 import click
 from llm import get_plugins
@@ -59,7 +60,7 @@ def register_commands(cli):
         help="Disable the cache",
     )
     def install(packages, upgrade, editable, force_reinstall, no_cache_dir):
-        args = ["uv", "tool", "install", "--force", "llm"]
+        args = ["uv", "tool", "install", "--force", f"llm=={version('llm')}"]
         if upgrade:
             args.extend(["--upgrade"])
         if editable:
@@ -96,7 +97,7 @@ def register_commands(cli):
                 click.echo("Aborted!")
                 return
 
-        args: list[str] = ["uv", "tool", "install", "--force", "llm"]
+        args: list[str] = ["uv", "tool", "install", "--force", f"llm=={version('llm')}"]
         for package in installed_packages - set(packages):
             args.extend(["--with", package])
 
