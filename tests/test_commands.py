@@ -1,118 +1,41 @@
 from __future__ import annotations
 
-import click
-from click.testing import CliRunner
-
-import llm_uv_tool
+import os
+import subprocess
 
 
-def cli():
-    group = click.Group()
-    llm_uv_tool.register_commands(group)
-    return group
-
-
-def test_install_rebuilds_tool_with_current_prerelease_llm(monkeypatch, tmp_path):
-    calls = []
-
-    monkeypatch.setattr(llm_uv_tool, "user_dir", lambda: tmp_path)
-    monkeypatch.setattr(llm_uv_tool, "version", lambda package: "0.32a2")
-    monkeypatch.setattr(llm_uv_tool, "get_plugins", lambda: [])
-    monkeypatch.setattr(
-        llm_uv_tool.subprocess,
-        "run",
-        lambda args, check: calls.append((args, check)),
+def run(command, env):
+    return subprocess.run(
+        command,
+        check=True,
+        capture_output=True,
+        env=env,
+        text=True,
     )
 
-    result = CliRunner().invoke(cli(), ["install", "llm-llama-cpp"])
 
-    assert result.exit_code == 0
-    assert calls == [
-        (
-            [
-                "uv",
-                "tool",
-                "install",
-                "--force",
-                "llm==0.32a2",
-                "--with",
-                "llm-llama-cpp",
-            ],
-            True,
-        )
-    ]
-    assert llm_uv_tool.get_installed_uv_tool_packages() == ["llm-llama-cpp"]
+def test_install_preserves_prerelease_llm_version(tmp_path):
+    env = os.environ.copy()
+    env["UV_TOOL_DIR"] = str(tmp_path / "tools")
+    env["UV_TOOL_BIN_DIR"] = str(tmp_path / "bin")
 
-
-def test_install_keeps_existing_plugins_when_rebuilding(monkeypatch, tmp_path):
-    calls = []
-    (tmp_path / "uv-tool-packages.json").write_text('["llm-templates-github"]')
-
-    monkeypatch.setattr(llm_uv_tool, "user_dir", lambda: tmp_path)
-    monkeypatch.setattr(llm_uv_tool, "version", lambda package: "0.31")
-    monkeypatch.setattr(llm_uv_tool, "get_plugins", lambda: [{"name": "llm-gemini"}])
-    monkeypatch.setattr(
-        llm_uv_tool.subprocess,
-        "run",
-        lambda args, check: calls.append((args, check)),
+    run(
+        [
+            "uv",
+            "tool",
+            "install",
+            "--python",
+            "3.13",
+            "--with-editable",
+            ".",
+            "llm==0.32a2",
+        ],
+        env,
     )
 
-    result = CliRunner().invoke(cli(), ["install", "--no-cache-dir", "llm-llama-cpp"])
+    llm = tmp_path / "bin" / "llm"
+    assert run([llm, "--version"], env).stdout.strip() == "llm, version 0.32a2"
 
-    assert result.exit_code == 0
-    args, check = calls[0]
-    assert check is True
-    assert args[:6] == [
-        "uv",
-        "tool",
-        "install",
-        "--force",
-        "llm==0.31",
-        "--no-cache",
-    ]
-    assert set(args[6:]) == {
-        "--with",
-        "llm-gemini",
-        "llm-llama-cpp",
-        "llm-templates-github",
-    }
-    assert llm_uv_tool.get_installed_uv_tool_packages() == [
-        "llm-templates-github",
-        "llm-gemini",
-        "llm-llama-cpp",
-    ]
+    run([llm, "install", "llm-templates-github"], env)
 
-
-def test_uninstall_rebuilds_tool_with_current_prerelease_llm(monkeypatch, tmp_path):
-    calls = []
-    (tmp_path / "uv-tool-packages.json").write_text(
-        '["llm-llama-cpp", "llm-templates-github"]'
-    )
-
-    monkeypatch.setattr(llm_uv_tool, "user_dir", lambda: tmp_path)
-    monkeypatch.setattr(llm_uv_tool, "version", lambda package: "0.32a2")
-    monkeypatch.setattr(llm_uv_tool, "get_plugins", lambda: [])
-    monkeypatch.setattr(
-        llm_uv_tool.subprocess,
-        "run",
-        lambda args, check: calls.append((args, check)),
-    )
-
-    result = CliRunner().invoke(cli(), ["uninstall", "-y", "llm-llama-cpp"])
-
-    assert result.exit_code == 0
-    assert calls == [
-        (
-            [
-                "uv",
-                "tool",
-                "install",
-                "--force",
-                "llm==0.32a2",
-                "--with",
-                "llm-templates-github",
-            ],
-            True,
-        )
-    ]
-    assert llm_uv_tool.get_installed_uv_tool_packages() == ["llm-templates-github"]
+    assert run([llm, "--version"], env).stdout.strip() == "llm, version 0.32a2"

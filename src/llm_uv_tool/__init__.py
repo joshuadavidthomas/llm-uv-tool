@@ -38,35 +38,7 @@ def remove_installed_uv_tool_package(package_name):
 
 
 def llm_requirement():
-    return pinned_llm_requirement(version("llm"))
-
-
-def pinned_llm_requirement(llm_version):
-    return f"llm=={llm_version}"
-
-
-def install_args(
-    llm_version, packages, upgrade, editable, force_reinstall, no_cache_dir
-):
-    args = ["uv", "tool", "install", "--force", pinned_llm_requirement(llm_version)]
-    if upgrade:
-        args.extend(["--upgrade"])
-    if editable:
-        args.extend(["--editable", editable])
-    if force_reinstall:
-        args.extend(["--reinstall"])
-    if no_cache_dir:
-        args.extend(["--no-cache"])
-    for package in packages:
-        args.extend(["--with", package])
-    return args
-
-
-def uninstall_args(llm_version, packages):
-    args = ["uv", "tool", "install", "--force", pinned_llm_requirement(llm_version)]
-    for package in packages:
-        args.extend(["--with", package])
-    return args
+    return f"llm=={version('llm')}"
 
 
 @hookimpl
@@ -92,15 +64,22 @@ def register_commands(cli):
         help="Disable the cache",
     )
     def install(packages, upgrade, editable, force_reinstall, no_cache_dir):
-        llm_version = version("llm")
+        args = ["uv", "tool", "install", "--force", llm_requirement()]
+        if upgrade:
+            args.extend(["--upgrade"])
+        if editable:
+            args.extend(["--editable", editable])
+        if force_reinstall:
+            args.extend(["--reinstall"])
+        if no_cache_dir:
+            args.extend(["--no-cache"])
         packages = (
             set(get_installed_uv_tool_packages())
             | set(p["name"] for p in get_plugins())
             | set(packages)
         )
-        args = install_args(
-            llm_version, packages, upgrade, editable, force_reinstall, no_cache_dir
-        )
+        for package in packages:
+            args.extend(["--with", package])
 
         subprocess.run(args, check=True)
 
@@ -122,7 +101,9 @@ def register_commands(cli):
                 click.echo("Aborted!")
                 return
 
-        args = uninstall_args(version("llm"), installed_packages - set(packages))
+        args: list[str] = ["uv", "tool", "install", "--force", llm_requirement()]
+        for package in installed_packages - set(packages):
+            args.extend(["--with", package])
 
         subprocess.run(args, check=True)
 
