@@ -37,10 +37,6 @@ def remove_installed_uv_tool_package(package_name):
         path.write_text(json.dumps(packages, indent=2))
 
 
-def llm_requirement():
-    return f"llm=={version('llm')}"
-
-
 @hookimpl
 def register_commands(cli):
     @cli.command()
@@ -64,7 +60,7 @@ def register_commands(cli):
         help="Disable the cache",
     )
     def install(packages, upgrade, editable, force_reinstall, no_cache_dir):
-        args = ["uv", "tool", "install", "--force", llm_requirement()]
+        args = ["uv", "tool", "install", "--force", f"llm=={version('llm')}"]
         if upgrade:
             args.extend(["--upgrade"])
         if editable:
@@ -101,7 +97,7 @@ def register_commands(cli):
                 click.echo("Aborted!")
                 return
 
-        args: list[str] = ["uv", "tool", "install", "--force", llm_requirement()]
+        args: list[str] = ["uv", "tool", "install", "--force", f"llm=={version('llm')}"]
         for package in installed_packages - set(packages):
             args.extend(["--with", package])
 
